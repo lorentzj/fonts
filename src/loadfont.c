@@ -3,7 +3,7 @@
 
 GLuint compile_shader_from_path(const char* path, GLuint shader_type);
 
-int load_font_shader_program() {
+int load_font_shader_program(GLuint *program) {
     int ok;
     char shader_error[GL_INFO_LOG_LENGTH];
 
@@ -12,26 +12,50 @@ int load_font_shader_program() {
     if(vshader == -1 || fshader == -1) return -1;
 
     // Link Shader Program
-    GLuint program = glCreateProgram();
+    *program = glCreateProgram();
 
-    glAttachShader(program, vshader);
-    glAttachShader(program, fshader);
+    glAttachShader(*program, vshader);
+    glAttachShader(*program, fshader);
 
-    glLinkProgram(program);
+    glLinkProgram(*program);
 
     glDeleteShader(vshader);
     glDeleteShader(fshader);
 
-    glGetProgramiv(program, GL_LINK_STATUS, &ok);
+    glGetProgramiv(*program, GL_LINK_STATUS, &ok);
 
     if(!ok) {
-        glGetProgramInfoLog(program, GL_INFO_LOG_LENGTH, NULL, shader_error);
+        glGetProgramInfoLog(*program, GL_INFO_LOG_LENGTH, NULL, shader_error);
         printf("Error Linking Shader Program:\n%s\n", shader_error);
-    	glDeleteProgram(program);
+    	glDeleteProgram(*program);
         return -1;
     }
 
-    glUseProgram(program);
+    glUseProgram(*program);
+
+    return 0;
+}
+
+int load_font_texture(const char* texture_path, GLuint *texture) {
+    glGenTextures(1, texture);
+    glBindTexture(GL_TEXTURE_2D, *texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    if(!IMG_Init(IMG_INIT_PNG)) {
+        return -1;
+    }
+
+    SDL_Surface* image = IMG_Load(texture_path);
+    if(image == NULL) {
+        printf("Error loading Font Texture: \n%s\n", IMG_GetError());        
+        return -1;
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
+
+    SDL_FreeSurface(image);
 
     return 0;
 }
