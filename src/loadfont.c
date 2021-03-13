@@ -26,8 +26,8 @@ int load_font_shader_program(GLuint *program) {
 
     if(!ok) {
         glGetProgramInfoLog(*program, GL_INFO_LOG_LENGTH, NULL, shader_error);
-        printf("Error Linking Shader Program:\n%s\n", shader_error);
     	glDeleteProgram(*program);
+        printf("Error Linking Shader Program:\n%s\n", shader_error);
         return -1;
     }
 
@@ -44,6 +44,7 @@ int load_font_texture(const char* texture_path, GLuint *texture) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     if(!IMG_Init(IMG_INIT_PNG)) {
+        printf("Failed to initialize SDL_image\n");
         return -1;
     }
 
@@ -51,6 +52,10 @@ int load_font_texture(const char* texture_path, GLuint *texture) {
     if(image == NULL) {
         printf("Error loading Font Texture: \n%s\n", IMG_GetError());        
         return -1;
+    }
+
+    if(image->w != 1024 || image->h != 16) {
+        printf("Error: font image %s should be 1024x16px, found %dx%dpx", texture_path, image->w, image->h);
     }
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
@@ -68,6 +73,7 @@ GLuint compile_shader_from_path(const char* path, GLuint shader_type) {
     // Load Shader Source
     FILE *shader_handle = fopen(path, "r");
     if(shader_handle == NULL) {
+        printf("Failed to open %s\n", path);
         return -1;
     }
 
@@ -77,6 +83,7 @@ GLuint compile_shader_from_path(const char* path, GLuint shader_type) {
     char *shader_source = malloc(file_length + 1);
     if(shader_source == NULL) {
         fclose(shader_handle);
+        printf("Failed to allocate space for contents of %s\n", path);
         return -1;
     }
 
@@ -95,8 +102,8 @@ GLuint compile_shader_from_path(const char* path, GLuint shader_type) {
     glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
     if(!ok) {
         glGetShaderInfoLog(shader, GL_INFO_LOG_LENGTH, NULL, shader_error);
-        printf("Error Compiling Shader at %s:\n%s\n", path, shader_error);
         glDeleteShader(shader);
+        printf("Error Compiling Shader at %s:\n%s\n", path, shader_error);
         return -1;
     }
 

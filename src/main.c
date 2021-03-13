@@ -3,16 +3,19 @@
 #include <GL/gl.h>
 #include <SDL2/SDL.h>
 
+#include "loadfont.h"
+
 #define STELLQ_WINDOW_WIDTH 1000
 #define STELLQ_WINDOW_HEIGHT 500
 
-#include "loadfont.h"
-
-void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
+void GLAPIENTRY gl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 
 int init_window(SDL_Window **window, SDL_GLContext *context, GLuint *shader_program, GLuint *font_texture) {
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) return -1;
-    
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+        printf("Failed to initialize SDL\n");
+        return -1;
+    }
+
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,  SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -21,10 +24,13 @@ int init_window(SDL_Window **window, SDL_GLContext *context, GLuint *shader_prog
     *window  = SDL_CreateWindow("StellQ", 0, 0, STELLQ_WINDOW_WIDTH, STELLQ_WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
     *context = SDL_GL_CreateContext(*window);
 
-    if(glewInit() != 0) return -1;
+    if(glewInit() != 0) {
+        printf("Failed to initialize GLEW\n");
+        return -1;
+    }
 
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(MessageCallback, 0);
+    glDebugMessageCallback(gl_message_callback, 0);
 
     glViewport(0, 0, STELLQ_WINDOW_WIDTH, STELLQ_WINDOW_HEIGHT);
     glEnable(GL_BLEND);
@@ -69,9 +75,11 @@ int main() {
     }
 }
 
-void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-    fprintf(stderr,
-                "GL CALLBACK %s\n\ttype = 0x%x\n\tseverity = 0x%x\n\t%s\n",
-                (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-                type, severity, message);
+void GLAPIENTRY gl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+    fprintf(
+                stderr,
+                "GL CALLBACK %s\n\tTYPE 0x%x\n\tSEVERITY = 0x%x\n\t%s\n",
+                type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "",
+                type, severity, message
+            );
 }
