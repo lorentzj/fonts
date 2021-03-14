@@ -15,3 +15,5 @@ Each font file is a 1024x16 pixel PNG, and each character is 8x16px, so the pixe
 `make`
 
 `bin/stellq fonts/1.png "The quick brown fox jumps over the lazy dog."`
+
+![Screenshot](screenshots/1.png)
