@@ -37,7 +37,7 @@ int init_window(SDL_Window **window, SDL_GLContext *context) {
     return 0;
 }
 
-int init_render(GLuint *shader_program, GLuint *font_texture, GLuint *vao, GLuint *vbo) {
+int init_render(GLuint *shader_program, GLuint *font_texture) {
     if(load_font_shader_program(shader_program) == -1) return -1;
     if(load_font_texture("fonts/1.png", font_texture) == -1) return -1;
 
@@ -66,28 +66,33 @@ int main() {
     GLuint font_texture;
     GLuint vao;
     GLuint vbo;
+    GLuint ebo;
 
     const char* text = "The quick, sly fox jumped over the lazy, brown dog.";
     int text_length = strlen(text);
 
     if(init_window(&window, &context) == -1) return -1;
-    if(init_render(&shader_program, &font_texture, &vao, &vbo) == -1) return -1;
+    if(init_render(&shader_program, &font_texture) == -1) return -1;
 
-    TextVertex* vertex_data = load_vertices(text, text_length, &vao, &vbo);
+    RenderData render_data = load_vertices(text, text_length, &vao, &vbo, &ebo);
 
     while(1) {
         while(SDL_PollEvent(&event) != 0) {
             if(event.type == SDL_QUIT) {
                 release_render(shader_program, font_texture, vao, vbo);
                 destroy_window(window, context);
-                free(vertex_data);
+
+                free(render_data.vertices);
+                free(render_data.element_indices);
+                
                 return 0;
             }
         }
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, text_length*6);
+        // 2 triangles per glyph, 3 vertices per triangle, so 6 vertices per glyph
+        glDrawElements(GL_TRIANGLES, text_length*6, GL_UNSIGNED_INT, (void*)0);
 
         SDL_GL_SwapWindow(window);
     }

@@ -14,8 +14,13 @@ typedef struct text_vertex {
     float ty;
 } TextVertex;
 
+typedef struct render_data {
+    TextVertex* vertices;
+    uint32_t* element_indices;
+} RenderData;
+
 int load_font_shader_program(GLuint *program);
 int load_font_texture(const char* texture_path, GLuint *texture);
-TextVertex* load_vertices(const char* text, int text_length, GLuint *vao, GLuint *vbo);
+RenderData load_vertices(const char* text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo);
 
 #endif

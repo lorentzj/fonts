@@ -70,23 +70,55 @@ int load_font_texture(const char* texture_path, GLuint *texture) {
     return 0;
 }
 
-TextVertex* load_vertices(const char* text, int text_length, GLuint *vao, GLuint *vbo) {
+RenderData load_vertices(const char* text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo) {
     glGenVertexArrays(1, vao);
     glBindVertexArray(*vao);
     
     glGenBuffers(1, vbo);
     glBindBuffer(GL_ARRAY_BUFFER, *vbo);
-    
+
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (void*)(0));
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (void*)(sizeof(float)*2));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    size_t buffer_size = text_length * 6 * sizeof(TextVertex);
+    size_t v_buffer_size = text_length * 4 * sizeof(TextVertex);
 
-    TextVertex* vertex_data = malloc(buffer_size);
+    TextVertex* vertex_data = malloc(v_buffer_size);
 
     float center = (float)text_length/2*STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH;
+
+    for(int i = 0; i < text_length; ++i) {
+        vertex_data[i*4 + 0].px = (float)i     *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
+        vertex_data[i*4 + 1].px = (float)i     *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
+        vertex_data[i*4 + 2].px = (float)(i+1) *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
+        vertex_data[i*4 + 3].px = (float)(i+1) *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
+
+        vertex_data[i*4 + 0].py = 0;
+        vertex_data[i*4 + 1].py = (float)STELLQ_CHAR_HEIGHT/STELLQ_WINDOW_HEIGHT;
+        vertex_data[i*4 + 2].py = 0;
+        vertex_data[i*4 + 3].py = (float)STELLQ_CHAR_HEIGHT/STELLQ_WINDOW_HEIGHT;
+
+        vertex_data[i*4 + 0].tx = (float)text[i]/128;
+        vertex_data[i*4 + 1].tx = (float)text[i]/128;
+        vertex_data[i*4 + 2].tx = (float)(text[i] + 1)/128;
+        vertex_data[i*4 + 3].tx = (float)(text[i] + 1)/128;
+
+        vertex_data[i*4 + 0].ty = 1;
+        vertex_data[i*4 + 1].ty = 0;
+        vertex_data[i*4 + 2].ty = 1;
+        vertex_data[i*4 + 3].ty = 0;
+    }
+
+    glBufferData(GL_ARRAY_BUFFER, v_buffer_size, vertex_data, GL_STATIC_DRAW);
+
+    
+    glGenBuffers(1, ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ebo);
+
+    size_t e_buffer_size = text_length * 6 * sizeof(uint32_t);
+
+    uint32_t* element_data = malloc(e_buffer_size);
 
     for(int i = 0; i < text_length; ++i) {
         /**
@@ -97,47 +129,30 @@ TextVertex* load_vertices(const char* text, int text_length, GLuint *vao, GLuint
          * [0]...........[1,4]
          */
 
-        vertex_data[i*6 + 0].px = (float)i     *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
-        vertex_data[i*6 + 1].px = (float)(i+1) *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
-        vertex_data[i*6 + 2].px = (float)i     *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
-        vertex_data[i*6 + 3].px = (float)i     *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
-        vertex_data[i*6 + 4].px = (float)(i+1) *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
-        vertex_data[i*6 + 5].px = (float)(i+1) *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
-
-        vertex_data[i*6 + 0].py = 0;
-        vertex_data[i*6 + 1].py = 0;
-        vertex_data[i*6 + 2].py = (float)STELLQ_CHAR_HEIGHT/STELLQ_WINDOW_HEIGHT;
-        vertex_data[i*6 + 3].py = (float)STELLQ_CHAR_HEIGHT/STELLQ_WINDOW_HEIGHT;
-        vertex_data[i*6 + 4].py = 0;
-        vertex_data[i*6 + 5].py = (float)STELLQ_CHAR_HEIGHT/STELLQ_WINDOW_HEIGHT;
-
-        vertex_data[i*6 + 0].tx = (float)text[i]/128;
-        vertex_data[i*6 + 1].tx = (float)(text[i] + 1)/128;
-        vertex_data[i*6 + 2].tx = (float)text[i]/128;
-        vertex_data[i*6 + 3].tx = (float)text[i]/128;
-        vertex_data[i*6 + 4].tx = (float)(text[i] + 1)/128;
-        vertex_data[i*6 + 5].tx = (float)(text[i] + 1)/128;
-
-        vertex_data[i*6 + 0].ty = 1;
-        vertex_data[i*6 + 1].ty = 1;
-        vertex_data[i*6 + 2].ty = 0;
-        vertex_data[i*6 + 3].ty = 0;
-        vertex_data[i*6 + 4].ty = 1;
-        vertex_data[i*6 + 5].ty = 0;
+        element_data[i*6 + 0] = i*4 + 0;
+        element_data[i*6 + 1] = i*4 + 2;
+        element_data[i*6 + 2] = i*4 + 1;
+        element_data[i*6 + 3] = i*4 + 1;
+        element_data[i*6 + 4] = i*4 + 2;
+        element_data[i*6 + 5] = i*4 + 3;
     }
 
-    glBufferData(GL_ARRAY_BUFFER, buffer_size, vertex_data, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, e_buffer_size, element_data, GL_STATIC_DRAW);
 
-    for(int i = 0; i < text_length; ++i) {
-        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 0].px, vertex_data[i*6 + 0].py, vertex_data[i*6 + 0].tx, vertex_data[i*6 + 0].ty);
-        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 1].px, vertex_data[i*6 + 1].py, vertex_data[i*6 + 1].tx, vertex_data[i*6 + 1].ty);
-        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 2].px, vertex_data[i*6 + 2].py, vertex_data[i*6 + 2].tx, vertex_data[i*6 + 2].ty);
-        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 3].px, vertex_data[i*6 + 3].py, vertex_data[i*6 + 3].tx, vertex_data[i*6 + 3].ty);
-        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 4].px, vertex_data[i*6 + 4].py, vertex_data[i*6 + 4].tx, vertex_data[i*6 + 4].ty);
-        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 5].px, vertex_data[i*6 + 5].py, vertex_data[i*6 + 5].tx, vertex_data[i*6 + 5].ty);
-    }
+    // for(int i = 0; i < text_length; ++i) {
+    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 0].px, vertex_data[i*6 + 0].py, vertex_data[i*6 + 0].tx, vertex_data[i*6 + 0].ty);
+    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 1].px, vertex_data[i*6 + 1].py, vertex_data[i*6 + 1].tx, vertex_data[i*6 + 1].ty);
+    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 2].px, vertex_data[i*6 + 2].py, vertex_data[i*6 + 2].tx, vertex_data[i*6 + 2].ty);
+    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 3].px, vertex_data[i*6 + 3].py, vertex_data[i*6 + 3].tx, vertex_data[i*6 + 3].ty);
+    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 4].px, vertex_data[i*6 + 4].py, vertex_data[i*6 + 4].tx, vertex_data[i*6 + 4].ty);
+    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 5].px, vertex_data[i*6 + 5].py, vertex_data[i*6 + 5].tx, vertex_data[i*6 + 5].ty);
+    // }
 
-    return vertex_data;
+    RenderData rdata;
+    rdata.element_indices = element_data;
+    rdata.vertices = vertex_data;
+
+    return rdata;
 }
 
 GLuint compile_shader_from_path(const char* path, GLuint shader_type) {
