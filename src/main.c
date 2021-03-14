@@ -44,11 +44,12 @@ int init_render(char* font_path, GLuint *shader_program, GLuint *font_texture) {
     return 0;
 }
 
-void release_render(GLuint shader_program, GLuint font_texture, GLuint vao, GLuint vbo) {
+void release_render(GLuint shader_program, GLuint font_texture, GLuint vao, GLuint vbo, GLuint ebo) {
     glDeleteProgram(shader_program);
     glDeleteTextures(1, &font_texture);
     glDeleteBuffers(1, &vao);
     glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
 }
 
 void destroy_window(SDL_Window *window, SDL_GLContext *context) {
@@ -86,7 +87,7 @@ int main(int argc, char *argv[]) {
     while(1) {
         while(SDL_PollEvent(&event) != 0) {
             if(event.type == SDL_QUIT) {
-                release_render(shader_program, font_texture, vao, vbo);
+                release_render(shader_program, font_texture, vao, vbo, ebo);
                 destroy_window(window, context);
 
                 free(render_data.vertices);
