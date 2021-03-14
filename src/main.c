@@ -37,9 +37,9 @@ int init_window(SDL_Window **window, SDL_GLContext *context) {
     return 0;
 }
 
-int init_render(GLuint *shader_program, GLuint *font_texture) {
+int init_render(char* font_path, GLuint *shader_program, GLuint *font_texture) {
     if(load_font_shader_program(shader_program) == -1) return -1;
-    if(load_font_texture("fonts/1.png", font_texture) == -1) return -1;
+    if(load_font_texture(font_path, font_texture) == -1) return -1;
 
     return 0;
 }
@@ -58,12 +58,13 @@ void destroy_window(SDL_Window *window, SDL_GLContext *context) {
 }
 
 int main(int argc, char *argv[]) {
-    if(argc != 2) {
-        printf("Usage:\n\t%s [string to display]\n", argv[0]);
+    if(argc != 3) {
+        printf("Usage:\n\t%s [path/to/font.png] [string to display]\n", argv[0]);
         return -1;
     }
 
-    char *text = argv[1];
+    char *font_path = argv[1];
+    char *text      = argv[2];
 
     SDL_Window    *window;
     SDL_GLContext  context;
@@ -78,7 +79,7 @@ int main(int argc, char *argv[]) {
     int text_length = strlen(text);
 
     if(init_window(&window, &context) == -1) return -1;
-    if(init_render(&shader_program, &font_texture) == -1) return -1;
+    if(init_render(font_path, &shader_program, &font_texture) == -1) return -1;
 
     RenderData render_data = load_vertices(text, text_length, &vao, &vbo, &ebo);
 
