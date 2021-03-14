@@ -3,10 +3,6 @@
 #include <GL/gl.h>
 #include <SDL2/SDL.h>
 
-#define STELLQ_WINDOW_WIDTH 500
-#define STELLQ_WINDOW_HEIGHT 500
-#define STELLQ_WINDOW_ASPECT ((float)STELLQ_WINDOW_HEIGHT/STELLQ_WINDOW_WIDTH)
-
 #include "loadfont.h"
 
 void GLAPIENTRY gl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
@@ -71,7 +67,7 @@ int main() {
     GLuint vao;
     GLuint vbo;
 
-    const char* text = "ABCDEFG";
+    const char* text = "The quick, sly fox jumped over the lazy, brown dog.";
     int text_length = strlen(text);
 
     if(init_window(&window, &context) == -1) return -1;

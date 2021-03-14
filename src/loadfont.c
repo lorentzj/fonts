@@ -86,6 +86,8 @@ TextVertex* load_vertices(const char* text, int text_length, GLuint *vao, GLuint
 
     TextVertex* vertex_data = malloc(buffer_size);
 
+    float center = (float)text_length/2*STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH;
+
     for(int i = 0; i < text_length; ++i) {
         /**
          * [2,3].........[5] 
@@ -95,19 +97,19 @@ TextVertex* load_vertices(const char* text, int text_length, GLuint *vao, GLuint
          * [0]...........[1,4]
          */
 
-        vertex_data[i*6 + 0].px = (float)i/text_length - 0.5;
-        vertex_data[i*6 + 1].px = (float)(i+1)/text_length - 0.5;
-        vertex_data[i*6 + 2].px = (float)i/text_length - 0.5;
-        vertex_data[i*6 + 3].px = (float)i/text_length - 0.5;
-        vertex_data[i*6 + 4].px = (float)(i+1)/text_length - 0.5;
-        vertex_data[i*6 + 5].px = (float)(i+1)/text_length - 0.5;
+        vertex_data[i*6 + 0].px = (float)i     *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
+        vertex_data[i*6 + 1].px = (float)(i+1) *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
+        vertex_data[i*6 + 2].px = (float)i     *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
+        vertex_data[i*6 + 3].px = (float)i     *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
+        vertex_data[i*6 + 4].px = (float)(i+1) *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
+        vertex_data[i*6 + 5].px = (float)(i+1) *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
 
-        vertex_data[i*6 + 0].py = -0.2;
-        vertex_data[i*6 + 1].py = -0.2;
-        vertex_data[i*6 + 2].py = 0.2;
-        vertex_data[i*6 + 3].py = 0.2;
-        vertex_data[i*6 + 4].py = -0.2;
-        vertex_data[i*6 + 5].py = 0.2;
+        vertex_data[i*6 + 0].py = 0;
+        vertex_data[i*6 + 1].py = 0;
+        vertex_data[i*6 + 2].py = (float)STELLQ_CHAR_HEIGHT/STELLQ_WINDOW_HEIGHT;
+        vertex_data[i*6 + 3].py = (float)STELLQ_CHAR_HEIGHT/STELLQ_WINDOW_HEIGHT;
+        vertex_data[i*6 + 4].py = 0;
+        vertex_data[i*6 + 5].py = (float)STELLQ_CHAR_HEIGHT/STELLQ_WINDOW_HEIGHT;
 
         vertex_data[i*6 + 0].tx = (float)text[i]/128;
         vertex_data[i*6 + 1].tx = (float)(text[i] + 1)/128;

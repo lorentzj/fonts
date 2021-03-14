@@ -1,6 +1,12 @@
 #ifndef LOAD_FONT_H
 #define LOAD_FONT_H
 
+#define STELLQ_WINDOW_WIDTH 1000
+#define STELLQ_WINDOW_HEIGHT 500
+#define STELLQ_WINDOW_ASPECT ((float)STELLQ_WINDOW_HEIGHT/STELLQ_WINDOW_WIDTH)
+#define STELLQ_CHAR_HEIGHT 60
+#define STELLQ_CHAR_WIDTH (STELLQ_CHAR_HEIGHT/2)
+
 typedef struct text_vertex {
     float px;
     float py;
