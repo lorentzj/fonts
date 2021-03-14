@@ -38,7 +38,7 @@ int load_font_shader_program(GLuint *program) {
     return 0;
 }
 
-int load_font_texture(const char* texture_path, GLuint *texture) {
+int load_font_texture(char* texture_path, GLuint *texture) {
     glGenTextures(1, texture);
     glBindTexture(GL_TEXTURE_2D, *texture);
 

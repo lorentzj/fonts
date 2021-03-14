@@ -20,7 +20,7 @@ typedef struct render_data {
 } RenderData;
 
 int load_font_shader_program(GLuint *program);
-int load_font_texture(const char* texture_path, GLuint *texture);
+int load_font_texture(char* texture_path, GLuint *texture);
 RenderData load_vertices(char* text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo);
 
 #endif
