@@ -1,6 +1,8 @@
 #include <GL/glew.h>
 #include <SDL2/SDL_image.h>
 
+#include "loadfont.h"
+
 GLuint compile_shader_from_path(const char* path, GLuint shader_type);
 
 int load_font_shader_program(GLuint *program) {
@@ -55,7 +57,8 @@ int load_font_texture(const char* texture_path, GLuint *texture) {
     }
 
     if(image->w != 1024 || image->h != 16) {
-        printf("Error: font image %s should be 1024x16px, found %dx%dpx", texture_path, image->w, image->h);
+        printf("Error loading font at %s\nImage size should be 1024x16px; found %dx%dpx.\n", texture_path, image->w, image->h);
+        return -1;
     }
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
@@ -63,6 +66,55 @@ int load_font_texture(const char* texture_path, GLuint *texture) {
     SDL_FreeSurface(image);
 
     return 0;
+}
+
+TextVertex* load_vertices(const char* text, GLuint *vao, GLuint *vbo) {
+    glGenVertexArrays(1, vao);
+    glBindVertexArray(*vao);
+    
+    glGenBuffers(1, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+    
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (void*)(sizeof(float)*2));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    int text_length = strlen(text);
+
+    TextVertex* vertex_data = malloc(text_length * 4 * sizeof(TextVertex));
+
+    for(int i = 0; i < text_length; ++i) {
+        // bottom left
+        vertex_data[i*4].px = (float)i/text_length;
+        vertex_data[i*4].py = 0;
+        vertex_data[i*4].tx = (float)text[i]/128;
+        vertex_data[i*4].ty = 0;
+
+        // top left
+        vertex_data[i*4 + 1].px = (float)i/text_length;
+        vertex_data[i*4 + 1].py = 0.2;
+        vertex_data[i*4 + 1].tx = (float)text[i]/128;
+        vertex_data[i*4 + 1].ty = 1;
+
+        // bottom right
+        vertex_data[i*4 + 2].px = (float)(i+1)/text_length;
+        vertex_data[i*4 + 2].py = 0;
+        vertex_data[i*4 + 2].tx = (float)(text[i] + 1)/128;
+        vertex_data[i*4 + 2].ty = 0;
+
+        // top right
+        vertex_data[i*4 + 3].px = (float)(i+1)/text_length;
+        vertex_data[i*4 + 3].py = 0.2;
+        vertex_data[i*4 + 3].tx = (float)(text[i] + 1)/128;
+        vertex_data[i*4 + 3].ty = 1;
+    }
+
+    glBindVertexArray(*vao);
+    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+    glBufferData(GL_ARRAY_BUFFER, text_length * 4 * sizeof(TextVertex), vertex_data, GL_STATIC_DRAW);
+
+    return vertex_data;
 }
 
 GLuint compile_shader_from_path(const char* path, GLuint shader_type) {
