@@ -44,6 +44,8 @@ int load_font_texture(const char* texture_path, GLuint *texture) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);    
 
     if(!IMG_Init(IMG_INIT_PNG)) {
         printf("Failed to initialize SDL_image\n");
@@ -52,7 +54,7 @@ int load_font_texture(const char* texture_path, GLuint *texture) {
 
     SDL_Surface* image = IMG_Load(texture_path);
     if(image == NULL) {
-        printf("Error loading Font Texture: \n%s\n", IMG_GetError());        
+        printf("Error loading font texture: \n%s\n", IMG_GetError());        
         return -1;
     }
 
@@ -68,51 +70,70 @@ int load_font_texture(const char* texture_path, GLuint *texture) {
     return 0;
 }
 
-TextVertex* load_vertices(const char* text, GLuint *vao, GLuint *vbo) {
+TextVertex* load_vertices(const char* text, int text_length, GLuint *vao, GLuint *vbo) {
     glGenVertexArrays(1, vao);
     glBindVertexArray(*vao);
     
     glGenBuffers(1, vbo);
     glBindBuffer(GL_ARRAY_BUFFER, *vbo);
     
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (void*)0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (void*)(sizeof(float)*2));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (void*)(0));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(TextVertex), (void*)(sizeof(float)*2));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    int text_length = strlen(text);
+    size_t buffer_size = text_length * 6 * sizeof(TextVertex);
 
-    TextVertex* vertex_data = malloc(text_length * 4 * sizeof(TextVertex));
+    TextVertex* vertex_data = malloc(buffer_size);
 
     for(int i = 0; i < text_length; ++i) {
-        // bottom left
-        vertex_data[i*4].px = (float)i/text_length;
-        vertex_data[i*4].py = 0;
-        vertex_data[i*4].tx = (float)text[i]/128;
-        vertex_data[i*4].ty = 0;
+        /**
+         * [2,3].........[5] 
+         * .    .        .
+         * .        .    .
+         * .            ..
+         * [0]...........[1,4]
+         */
 
-        // top left
-        vertex_data[i*4 + 1].px = (float)i/text_length;
-        vertex_data[i*4 + 1].py = 0.2;
-        vertex_data[i*4 + 1].tx = (float)text[i]/128;
-        vertex_data[i*4 + 1].ty = 1;
+        vertex_data[i*6 + 0].px = (float)i/text_length - 0.5;
+        vertex_data[i*6 + 1].px = (float)(i+1)/text_length - 0.5;
+        vertex_data[i*6 + 2].px = (float)i/text_length - 0.5;
+        vertex_data[i*6 + 3].px = (float)i/text_length - 0.5;
+        vertex_data[i*6 + 4].px = (float)(i+1)/text_length - 0.5;
+        vertex_data[i*6 + 5].px = (float)(i+1)/text_length - 0.5;
 
-        // bottom right
-        vertex_data[i*4 + 2].px = (float)(i+1)/text_length;
-        vertex_data[i*4 + 2].py = 0;
-        vertex_data[i*4 + 2].tx = (float)(text[i] + 1)/128;
-        vertex_data[i*4 + 2].ty = 0;
+        vertex_data[i*6 + 0].py = -0.2;
+        vertex_data[i*6 + 1].py = -0.2;
+        vertex_data[i*6 + 2].py = 0.2;
+        vertex_data[i*6 + 3].py = 0.2;
+        vertex_data[i*6 + 4].py = -0.2;
+        vertex_data[i*6 + 5].py = 0.2;
 
-        // top right
-        vertex_data[i*4 + 3].px = (float)(i+1)/text_length;
-        vertex_data[i*4 + 3].py = 0.2;
-        vertex_data[i*4 + 3].tx = (float)(text[i] + 1)/128;
-        vertex_data[i*4 + 3].ty = 1;
+        vertex_data[i*6 + 0].tx = (float)text[i]/128;
+        vertex_data[i*6 + 1].tx = (float)(text[i] + 1)/128;
+        vertex_data[i*6 + 2].tx = (float)text[i]/128;
+        vertex_data[i*6 + 3].tx = (float)text[i]/128;
+        vertex_data[i*6 + 4].tx = (float)(text[i] + 1)/128;
+        vertex_data[i*6 + 5].tx = (float)(text[i] + 1)/128;
+
+        vertex_data[i*6 + 0].ty = 1;
+        vertex_data[i*6 + 1].ty = 1;
+        vertex_data[i*6 + 2].ty = 0;
+        vertex_data[i*6 + 3].ty = 0;
+        vertex_data[i*6 + 4].ty = 1;
+        vertex_data[i*6 + 5].ty = 0;
     }
 
-    glBindVertexArray(*vao);
-    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
-    glBufferData(GL_ARRAY_BUFFER, text_length * 4 * sizeof(TextVertex), vertex_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, buffer_size, vertex_data, GL_STATIC_DRAW);
+
+    for(int i = 0; i < text_length; ++i) {
+        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 0].px, vertex_data[i*6 + 0].py, vertex_data[i*6 + 0].tx, vertex_data[i*6 + 0].ty);
+        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 1].px, vertex_data[i*6 + 1].py, vertex_data[i*6 + 1].tx, vertex_data[i*6 + 1].ty);
+        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 2].px, vertex_data[i*6 + 2].py, vertex_data[i*6 + 2].tx, vertex_data[i*6 + 2].ty);
+        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 3].px, vertex_data[i*6 + 3].py, vertex_data[i*6 + 3].tx, vertex_data[i*6 + 3].ty);
+        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 4].px, vertex_data[i*6 + 4].py, vertex_data[i*6 + 4].tx, vertex_data[i*6 + 4].ty);
+        printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 5].px, vertex_data[i*6 + 5].py, vertex_data[i*6 + 5].tx, vertex_data[i*6 + 5].ty);
+    }
 
     return vertex_data;
 }

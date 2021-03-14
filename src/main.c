@@ -3,7 +3,7 @@
 #include <GL/gl.h>
 #include <SDL2/SDL.h>
 
-#define STELLQ_WINDOW_WIDTH 1000
+#define STELLQ_WINDOW_WIDTH 500
 #define STELLQ_WINDOW_HEIGHT 500
 #define STELLQ_WINDOW_ASPECT ((float)STELLQ_WINDOW_HEIGHT/STELLQ_WINDOW_WIDTH)
 
@@ -35,6 +35,7 @@ int init_window(SDL_Window **window, SDL_GLContext *context) {
 
     glViewport(0, 0, STELLQ_WINDOW_WIDTH, STELLQ_WINDOW_HEIGHT);
     glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(1.0, 1.0, 1.0, 1.0);
 
     return 0;
@@ -70,13 +71,13 @@ int main() {
     GLuint vao;
     GLuint vbo;
 
-    const char* text = "test";
-
+    const char* text = "ABCDEFG";
+    int text_length = strlen(text);
 
     if(init_window(&window, &context) == -1) return -1;
     if(init_render(&shader_program, &font_texture, &vao, &vbo) == -1) return -1;
 
-    TextVertex* vertex_data = load_vertices(text, &vao, &vbo);
+    TextVertex* vertex_data = load_vertices(text, text_length, &vao, &vbo);
 
     while(1) {
         while(SDL_PollEvent(&event) != 0) {
@@ -90,7 +91,7 @@ int main() {
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, strlen(text) * 4);
+        glDrawArrays(GL_TRIANGLES, 0, text_length*6);
 
         SDL_GL_SwapWindow(window);
     }

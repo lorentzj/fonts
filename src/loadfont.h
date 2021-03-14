@@ -10,6 +10,6 @@ typedef struct text_vertex {
 
 int load_font_shader_program(GLuint *program);
 int load_font_texture(const char* texture_path, GLuint *texture);
-TextVertex* load_vertices(const char* text, GLuint *vao, GLuint *vbo);
+TextVertex* load_vertices(const char* text, int text_length, GLuint *vao, GLuint *vbo);
 
 #endif

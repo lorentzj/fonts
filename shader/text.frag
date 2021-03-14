@@ -2,9 +2,9 @@
 
 out vec4 color;
 
-in vec2 f_tex_coord;
+in vec2 f_text_coord;
 uniform sampler2D font;
 
 void main() {
-    color = texture(font, f_tex_coord);
+    color = texture(font, f_text_coord);
 }
