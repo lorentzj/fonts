@@ -1,6 +1,6 @@
 # StellQ
 
-A set of bitmap ASCII fonts (1 so far) and a very simple font previewer.
+A collection of bitmap ASCII fonts (1 so far) and a very simple font previewer.
 
 The previewer uses `OpenGL 3.3`, `GLEW`, `SDL2`, and `SDL_Image`. The Makefile is tested on Ubuntu 20.04.
 
