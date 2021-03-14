@@ -57,7 +57,14 @@ void destroy_window(SDL_Window *window, SDL_GLContext *context) {
     SDL_Quit();
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    if(argc != 2) {
+        printf("Usage:\n\t%s [string to display]\n", argv[0]);
+        return -1;
+    }
+
+    char *text = argv[1];
+
     SDL_Window    *window;
     SDL_GLContext  context;
     SDL_Event      event;
@@ -68,7 +75,6 @@ int main() {
     GLuint vbo;
     GLuint ebo;
 
-    const char* text = "The quick, sly fox jumped over the lazy, brown dog.";
     int text_length = strlen(text);
 
     if(init_window(&window, &context) == -1) return -1;

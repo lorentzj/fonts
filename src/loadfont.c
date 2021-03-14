@@ -70,7 +70,7 @@ int load_font_texture(const char* texture_path, GLuint *texture) {
     return 0;
 }
 
-RenderData load_vertices(const char* text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo) {
+RenderData load_vertices(char* text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo) {
     glGenVertexArrays(1, vao);
     glBindVertexArray(*vao);
     
@@ -111,7 +111,6 @@ RenderData load_vertices(const char* text, int text_length, GLuint *vao, GLuint 
     }
 
     glBufferData(GL_ARRAY_BUFFER, v_buffer_size, vertex_data, GL_STATIC_DRAW);
-
     
     glGenBuffers(1, ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ebo);
@@ -138,15 +137,6 @@ RenderData load_vertices(const char* text, int text_length, GLuint *vao, GLuint 
     }
 
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, e_buffer_size, element_data, GL_STATIC_DRAW);
-
-    // for(int i = 0; i < text_length; ++i) {
-    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 0].px, vertex_data[i*6 + 0].py, vertex_data[i*6 + 0].tx, vertex_data[i*6 + 0].ty);
-    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 1].px, vertex_data[i*6 + 1].py, vertex_data[i*6 + 1].tx, vertex_data[i*6 + 1].ty);
-    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 2].px, vertex_data[i*6 + 2].py, vertex_data[i*6 + 2].tx, vertex_data[i*6 + 2].ty);
-    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 3].px, vertex_data[i*6 + 3].py, vertex_data[i*6 + 3].tx, vertex_data[i*6 + 3].ty);
-    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 4].px, vertex_data[i*6 + 4].py, vertex_data[i*6 + 4].tx, vertex_data[i*6 + 4].ty);
-    //     printf("(%f %f) (%f %f)\n", vertex_data[i*6 + 5].px, vertex_data[i*6 + 5].py, vertex_data[i*6 + 5].tx, vertex_data[i*6 + 5].ty);
-    // }
 
     RenderData rdata;
     rdata.element_indices = element_data;
