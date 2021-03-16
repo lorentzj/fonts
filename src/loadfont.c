@@ -42,6 +42,8 @@ TextRenderContext* load_text_render_context(char *font_path) {
     context->ebo = -1;
     context->text_length = -1;
     context->text_loaded = 0;
+    context->data.vertices = NULL;
+    context->data.element_indices = NULL;
     return context;
 }
 
@@ -60,6 +62,8 @@ void load_text_to_context(TextRenderContext *context, char *text) {
 }
 
 void render_text_from_context(TextRenderContext *context) {
+    glUseProgram(context->shader_program);
+
     // 2 triangles per glyph, 3 vertices per triangle, so 6 vertices per glyph
     glDrawElements(GL_TRIANGLES, context->text_length*6, GL_UNSIGNED_INT, (void*)0);
 }
