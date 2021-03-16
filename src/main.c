@@ -13,10 +13,10 @@ void GLAPIENTRY gl_message_callback(GLenum source,
                                     GLuint id,
                                     GLenum severity,
                                     GLsizei length,
-                                    const GLchar *message,
-                                    const void *userParam);
+                                    const GLchar* message,
+                                    const void* userParam);
 
-int init_window(SDL_Window **window, SDL_GLContext *context) {
+int init_window(SDL_Window** window, SDL_GLContext* context) {
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
         printf("Failed to initialize SDL\n");
         return -1;
@@ -46,28 +46,28 @@ int init_window(SDL_Window **window, SDL_GLContext *context) {
     return 0;
 }
 
-void destroy_window(SDL_Window *window, SDL_GLContext *context) {
+void destroy_window(SDL_Window* window, SDL_GLContext* context) {
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char** argv) {
     if(argc != 3) {
         printf("Usage:\n\t%s [path/to/font.png] [string to display]\n", argv[0]);
         return -1;
     }
 
-    char *font_path = argv[1];
-    char *text      = argv[2];
+    char* font_path = argv[1];
+    char* text      = argv[2];
 
-    SDL_Window    *window;
+    SDL_Window*    window;
     SDL_GLContext  window_context;
     SDL_Event      event;
 
     if(init_window(&window, &window_context) == -1) return -1;
 
-    TextRenderContext *text_context = load_text_render_context(font_path);
+    TextRenderContext* text_context = load_text_render_context(font_path);
 
     if(text_context == NULL) return -1;
 
@@ -80,6 +80,8 @@ int main(int argc, char *argv[]) {
                 destroy_window(window, window_context);
 
                 return 0;
+            } else if(event.type == SDL_KEYDOWN) {
+                load_text_to_context(text_context, "abcdefg", 128);
             }
         }
 
@@ -96,8 +98,8 @@ void GLAPIENTRY gl_message_callback(GLenum source,
                                     GLuint id,
                                     GLenum severity,
                                     GLsizei length,
-                                    const GLchar *message,
-                                    const void *userParam) {
+                                    const GLchar* message,
+                                    const void* userParam) {
 
     if(type == GL_DEBUG_TYPE_ERROR) {
         fprintf(stderr, "GL ERROR\n\tSEVERITY 0x%x\n\t%s\n", severity, message);
