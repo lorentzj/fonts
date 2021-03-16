@@ -63,7 +63,9 @@ void load_text_to_context(TextRenderContext *context, char *text, int text_heigh
 
 void render_text_from_context(TextRenderContext *context) {
     glUseProgram(context->shader_program);
-
+    glBindVertexArray(context->vao);
+    glBindTexture(GL_TEXTURE_2D, context->texture);
+    
     // 2 triangles per glyph, 3 vertices per triangle, so 6 vertices per glyph
     glDrawElements(GL_TRIANGLES, context->text_length*6, GL_UNSIGNED_INT, (void*)0);
 }
