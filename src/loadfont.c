@@ -46,6 +46,14 @@ TextRenderContext* load_text_render_context(char *font_path) {
 }
 
 void load_text_to_context(TextRenderContext *context, char *text) {
+    if(context->text_loaded) {
+        glDeleteBuffers(1, &context->vao);
+        glDeleteBuffers(1, &context->vbo);
+        glDeleteBuffers(1, &context->ebo);
+        free(context->data.vertices);
+        free(context->data.element_indices);
+    }
+
     context->text_length = strlen(text);
     context->data = load_vertices(text, context->text_length, &context->vao, &context->vbo, &context->ebo);
     context->text_loaded = 1;
