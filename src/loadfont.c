@@ -43,6 +43,10 @@ TextRenderContext* load_text_render_context(char* font_path) {
 }
 
 void load_text_to_context(TextRenderContext* context, char* text, int text_height) {
+    if(context->text_loaded && strcmp(context->text, text) == 0) {
+        return;
+    }
+
     context->text = text;
     context->text_length = strlen(text);
     load_vertices(context, text_height);
