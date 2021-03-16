@@ -7,20 +7,12 @@
 #define STELLQ_CHAR_HEIGHT 128
 #define STELLQ_CHAR_WIDTH (STELLQ_CHAR_HEIGHT/2)
 
-typedef struct text_vertex {
-    float px;
-    float py;
-    float tx;
-    float ty;
-} TextVertex;
+typedef struct text_render_context TextRenderContext;
 
-typedef struct render_data {
-    TextVertex* vertices;
-    uint32_t* element_indices;
-} RenderData;
-
-int load_font_shader_program(GLuint *program);
-int load_font_texture(char* texture_path, GLuint *texture);
-RenderData load_vertices(char* text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo);
+// returns null if any error loading shaders & texture
+TextRenderContext* load_text_render_context(char *font_path);
+void load_text_to_context(TextRenderContext *context, char *text);
+void render_text_from_context(TextRenderContext *context);
+void free_render_context(TextRenderContext *context);
 
 #endif

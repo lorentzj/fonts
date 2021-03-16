@@ -3,7 +3,74 @@
 
 #include "loadfont.h"
 
-GLuint compile_shader_from_path(const char* path, GLuint shader_type);
+typedef struct text_vertex {
+    float px;
+    float py;
+    float tx;
+    float ty;
+} TextVertex;
+
+typedef struct text_render_data {
+    TextVertex* vertices;
+    uint32_t* element_indices;
+} TextRenderData;
+
+typedef struct text_render_context {
+    GLuint shader_program;
+    GLuint texture;
+    GLuint vao;
+    GLuint vbo;
+    GLuint ebo;
+    TextRenderData data;
+    int text_length;
+    int text_loaded;
+} TextRenderContext;
+
+GLuint compile_shader_from_path(const char *path, GLuint shader_type);
+int load_font_shader_program(GLuint *program);
+int load_font_texture(char *texture_path, GLuint *texture);
+TextRenderData load_vertices(char *text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo);
+
+TextRenderContext* load_text_render_context(char *font_path) {
+    TextRenderContext *context = malloc(sizeof(TextRenderContext));
+
+    if(load_font_shader_program(&context->shader_program) == -1) return NULL;
+    if(load_font_texture(font_path, &context->texture) == -1) return NULL;
+
+    context->vao = -1;
+    context->vbo = -1;
+    context->ebo = -1;
+    context->text_length = -1;
+    context->text_loaded = 0;
+    return context;
+}
+
+void load_text_to_context(TextRenderContext *context, char *text) {
+    context->text_length = strlen(text);
+    context->data = load_vertices(text, context->text_length, &context->vao, &context->vbo, &context->ebo);
+    context->text_loaded = 1;
+}
+
+void render_text_from_context(TextRenderContext *context) {
+    // 2 triangles per glyph, 3 vertices per triangle, so 6 vertices per glyph
+    glDrawElements(GL_TRIANGLES, context->text_length*6, GL_UNSIGNED_INT, (void*)0);
+}
+
+void free_render_context(TextRenderContext *context) {
+    glDeleteProgram(context->shader_program);
+    glDeleteTextures(1, &context->texture);
+
+    if(context->text_loaded) {
+        glDeleteBuffers(1, &context->vao);
+        glDeleteBuffers(1, &context->vbo);
+        glDeleteBuffers(1, &context->ebo);
+
+        free(context->data.vertices);
+        free(context->data.element_indices);
+    }
+
+    free(context);
+}
 
 int load_font_shader_program(GLuint *program) {
     int ok;
@@ -38,21 +105,21 @@ int load_font_shader_program(GLuint *program) {
     return 0;
 }
 
-int load_font_texture(char* texture_path, GLuint *texture) {
+int load_font_texture(char *texture_path, GLuint *texture) {
     glGenTextures(1, texture);
     glBindTexture(GL_TEXTURE_2D, *texture);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);    
 
     if(!IMG_Init(IMG_INIT_PNG)) {
         printf("Failed to initialize SDL_image\n");
         return -1;
     }
 
-    SDL_Surface* image = IMG_Load(texture_path);
+    SDL_Surface *image = IMG_Load(texture_path);
     if(image == NULL) {
         printf("Error loading font texture: \n%s\n", IMG_GetError());        
         return -1;
@@ -70,7 +137,7 @@ int load_font_texture(char* texture_path, GLuint *texture) {
     return 0;
 }
 
-RenderData load_vertices(char* text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo) {
+TextRenderData load_vertices(char *text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo) {
     glGenVertexArrays(1, vao);
     glBindVertexArray(*vao);
     
@@ -84,7 +151,7 @@ RenderData load_vertices(char* text, int text_length, GLuint *vao, GLuint *vbo, 
 
     size_t v_buffer_size = text_length * 4 * sizeof(TextVertex);
 
-    TextVertex* vertex_data = malloc(v_buffer_size);
+    TextVertex *vertex_data = malloc(v_buffer_size);
 
     float center = (float)text_length/2*STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH;
 
@@ -117,7 +184,7 @@ RenderData load_vertices(char* text, int text_length, GLuint *vao, GLuint *vbo, 
 
     size_t e_buffer_size = text_length * 6 * sizeof(uint32_t);
 
-    uint32_t* element_data = malloc(e_buffer_size);
+    uint32_t *element_data = malloc(e_buffer_size);
 
     for(int i = 0; i < text_length; ++i) {
         /**
@@ -138,14 +205,14 @@ RenderData load_vertices(char* text, int text_length, GLuint *vao, GLuint *vbo, 
 
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, e_buffer_size, element_data, GL_STATIC_DRAW);
 
-    RenderData rdata;
+    TextRenderData rdata;
     rdata.element_indices = element_data;
     rdata.vertices = vertex_data;
 
     return rdata;
 }
 
-GLuint compile_shader_from_path(const char* path, GLuint shader_type) {
+GLuint compile_shader_from_path(const char *path, GLuint shader_type) {
     int ok;
     int file_length;
     char shader_error[GL_INFO_LOG_LENGTH];
