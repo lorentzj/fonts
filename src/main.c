@@ -80,8 +80,6 @@ int main(int argc, char** argv) {
                 destroy_window(window, window_context);
 
                 return 0;
-            } else if(event.type == SDL_KEYDOWN) {
-                load_text_to_context(text_context, "abcdefg", 128);
             }
         }
 
