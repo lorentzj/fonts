@@ -5,6 +5,9 @@
 
 #include "loadfont.h"
 
+#define STELLQ_WINDOW_WIDTH 1500
+#define STELLQ_WINDOW_HEIGHT 500
+
 void GLAPIENTRY gl_message_callback(GLenum source,
                                     GLenum type,
                                     GLuint id,
@@ -68,7 +71,7 @@ int main(int argc, char *argv[]) {
 
     if(text_context == NULL) return -1;
 
-    load_text_to_context(text_context, text);
+    load_text_to_context(text_context, text, 128);
 
     while(1) {
         while(SDL_PollEvent(&event) != 0) {

@@ -29,7 +29,7 @@ typedef struct text_render_context {
 GLuint compile_shader_from_path(const char *path, GLuint shader_type);
 int load_font_shader_program(GLuint *program);
 int load_font_texture(char *texture_path, GLuint *texture);
-TextRenderData load_vertices(char *text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo);
+TextRenderData load_vertices(char *text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo, int text_height);
 
 TextRenderContext* load_text_render_context(char *font_path) {
     TextRenderContext *context = malloc(sizeof(TextRenderContext));
@@ -47,7 +47,7 @@ TextRenderContext* load_text_render_context(char *font_path) {
     return context;
 }
 
-void load_text_to_context(TextRenderContext *context, char *text) {
+void load_text_to_context(TextRenderContext *context, char *text, int text_height) {
     if(context->text_loaded) {
         glDeleteBuffers(1, &context->vao);
         glDeleteBuffers(1, &context->vbo);
@@ -57,7 +57,7 @@ void load_text_to_context(TextRenderContext *context, char *text) {
     }
 
     context->text_length = strlen(text);
-    context->data = load_vertices(text, context->text_length, &context->vao, &context->vbo, &context->ebo);
+    context->data = load_vertices(text, context->text_length, &context->vao, &context->vbo, &context->ebo, text_height);
     context->text_loaded = 1;
 }
 
@@ -149,7 +149,14 @@ int load_font_texture(char *texture_path, GLuint *texture) {
     return 0;
 }
 
-TextRenderData load_vertices(char *text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo) {
+TextRenderData load_vertices(char *text, int text_length, GLuint *vao, GLuint *vbo, GLuint *ebo, int text_height) {
+    int text_width = text_height/2;
+    
+    int viewport_data[4];
+    glGetIntegerv(GL_VIEWPORT, viewport_data);
+    int window_width = viewport_data[2];
+    int window_height = viewport_data[3];
+
     glGenVertexArrays(1, vao);
     glBindVertexArray(*vao);
     
@@ -165,18 +172,18 @@ TextRenderData load_vertices(char *text, int text_length, GLuint *vao, GLuint *v
 
     TextVertex *vertex_data = malloc(v_buffer_size);
 
-    float center = (float)text_length/2*STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH;
+    float center = (float)text_length/2*text_width/window_width;
 
     for(int i = 0; i < text_length; ++i) {
-        vertex_data[i*4 + 0].px = (float)i     *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
-        vertex_data[i*4 + 1].px = (float)i     *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
-        vertex_data[i*4 + 2].px = (float)(i+1) *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
-        vertex_data[i*4 + 3].px = (float)(i+1) *STELLQ_CHAR_WIDTH/STELLQ_WINDOW_WIDTH - center;
+        vertex_data[i*4 + 0].px = (float)i    *text_width/window_width - center;
+        vertex_data[i*4 + 1].px = (float)i    *text_width/window_width - center;
+        vertex_data[i*4 + 2].px = (float)(i+1)*text_width/window_width - center;
+        vertex_data[i*4 + 3].px = (float)(i+1)*text_width/window_width - center;
 
         vertex_data[i*4 + 0].py = 0;
-        vertex_data[i*4 + 1].py = (float)STELLQ_CHAR_HEIGHT/STELLQ_WINDOW_HEIGHT;
+        vertex_data[i*4 + 1].py = (float)text_height/window_height;
         vertex_data[i*4 + 2].py = 0;
-        vertex_data[i*4 + 3].py = (float)STELLQ_CHAR_HEIGHT/STELLQ_WINDOW_HEIGHT;
+        vertex_data[i*4 + 3].py = (float)text_height/window_height;
 
         vertex_data[i*4 + 0].tx = (float)text[i]/128;
         vertex_data[i*4 + 1].tx = (float)text[i]/128;
