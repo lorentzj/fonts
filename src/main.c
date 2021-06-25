@@ -41,7 +41,7 @@ int init_window(SDL_Window** window, SDL_GLContext* context) {
     glViewport(0, 0, STELLQ_WINDOW_WIDTH, STELLQ_WINDOW_HEIGHT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
 
     return 0;
 }
@@ -54,7 +54,7 @@ void destroy_window(SDL_Window* window, SDL_GLContext* context) {
 
 int main(int argc, char** argv) {
     if(argc != 3) {
-        printf("Usage:\n\t%s [path/to/font.png] [string to display]\n", argv[0]);
+        printf("Usage:\n\t%s [path/to/font.png] [text to display]\n", argv[0]);
         return -1;
     }
 
