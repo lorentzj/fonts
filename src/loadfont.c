@@ -138,9 +138,9 @@ int load_font_texture(char* texture_path, GLuint* texture) {
         return -1;
     }
 
-    if(image->w != 1024 || image->h != 16) {
+    if(image->h*64 != image->w) {
         printf("Error loading font at %s:\n", texture_path);
-        printf("Image size should be 1024x16px; found %dx%dpx.\n", image->w, image->h);
+        printf("Image width*64 should equal image length; found %dx%dpx.\n", image->w, image->h);
         return -1;
     }
 
