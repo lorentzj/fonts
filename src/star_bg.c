@@ -15,6 +15,8 @@ typedef struct star_data {
     float g;
     float b;
     float shimmer_offset;
+    float theta;
+    float size;
 } StarData;
 
 typedef struct star_render_context {
@@ -43,6 +45,9 @@ StarRenderContext* load_star_render_context(int n_stars) {
         context->stars[i].b = random_between_0_and_1();
 
         context->stars[i].shimmer_offset = random_between_0_and_1() * 3.14159 * 2;
+        context->stars[i].theta = random_between_0_and_1() * 3.14159 * 2;
+        context->stars[i].size = random_between_0_and_1();
+        printf("%f\n", context->stars[i].size);
     }
 
     if(load_star_shader_program(&context->shader_program, context) == -1) return NULL;
@@ -63,9 +68,14 @@ StarRenderContext* load_star_render_context(int n_stars) {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(StarData), (void*)(0));
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(StarData), (void*)(sizeof(float)*2));
     glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(StarData), (void*)(sizeof(float)*5));
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(StarData), (void*)(sizeof(float)*6));
+    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(StarData), (void*)(sizeof(float)*7));
+    
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(4);
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(StarData) * n_stars, context->stars, GL_STATIC_DRAW);
 
