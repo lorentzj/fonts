@@ -1,4 +1,4 @@
-# StellQ
+# ✷✧✦ StellQ ✷✧✦
 
 A collection of bitmap ASCII fonts (1 so far) and a very simple font previewer.
 
