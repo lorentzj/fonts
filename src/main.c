@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
     if(init_window(&window, &window_context) == -1) return -1;
 
     TextRenderContext* text_context = load_text_render_context(font_path);
-    StarRenderContext* bg_context = load_star_render_context(10000);
+    StarRenderContext* bg_context = load_star_render_context(50000);
 
     if(text_context == NULL || bg_context == NULL) return -1;
 
