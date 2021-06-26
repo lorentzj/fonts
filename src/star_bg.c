@@ -20,6 +20,7 @@ typedef struct star_data {
 typedef struct star_render_context {
     GLuint shader_program;
     GLint u_time_location;
+    GLint u_aspect_location;
     GLuint vao;
     GLuint vbo;
     StarData* stars;
@@ -45,6 +46,13 @@ StarRenderContext* load_star_render_context(int n_stars) {
     }
 
     if(load_star_shader_program(&context->shader_program, context) == -1) return NULL;
+
+    int viewport_data[4];
+    glGetIntegerv(GL_VIEWPORT, viewport_data);
+    int window_width  = viewport_data[2];
+    int window_height = viewport_data[3];
+
+    glUniform1f(context->u_aspect_location, window_height/(float)window_width);
 
     glGenVertexArrays(1, &context->vao);
     glBindVertexArray(context->vao);
@@ -82,18 +90,22 @@ int load_star_shader_program(GLuint* program, StarRenderContext* context) {
     char shader_error[GL_INFO_LOG_LENGTH];
 
     GLuint vshader = compile_shader_from_path("shader/star.vert", GL_VERTEX_SHADER);
+    GLuint gshader = compile_shader_from_path("shader/star.geom", GL_GEOMETRY_SHADER);
     GLuint fshader = compile_shader_from_path("shader/star.frag", GL_FRAGMENT_SHADER);
-    if(vshader == -1 || fshader == -1) return -1;
+
+    if(vshader == -1 || gshader == -1 || fshader == -1) return -1;
 
     // Link Shader Program
     *program = glCreateProgram();
 
     glAttachShader(*program, vshader);
+    glAttachShader(*program, gshader);
     glAttachShader(*program, fshader);
 
     glLinkProgram(*program);
 
     glDeleteShader(vshader);
+    glDeleteShader(gshader);
     glDeleteShader(fshader);
 
     glGetProgramiv(*program, GL_LINK_STATUS, &ok);
@@ -108,6 +120,7 @@ int load_star_shader_program(GLuint* program, StarRenderContext* context) {
     glUseProgram(*program);
 
     context->u_time_location = glGetUniformLocation(*program, "u_time");
+    context->u_aspect_location = glGetUniformLocation(*program, "u_aspect");
 
     return 0;
 }
