@@ -4,9 +4,10 @@
 #include <SDL2/SDL.h>
 
 #include "loadfont.h"
+#include "star_bg.h"
 
 #define STELLQ_WINDOW_WIDTH 1500
-#define STELLQ_WINDOW_HEIGHT 500
+#define STELLQ_WINDOW_HEIGHT 1000
 
 void GLAPIENTRY gl_message_callback(GLenum source,
                                     GLenum type,
@@ -68,15 +69,18 @@ int main(int argc, char** argv) {
     if(init_window(&window, &window_context) == -1) return -1;
 
     TextRenderContext* text_context = load_text_render_context(font_path);
+    StarRenderContext* bg_context = load_star_render_context(10000);
 
-    if(text_context == NULL) return -1;
+    if(text_context == NULL || bg_context == NULL) return -1;
 
     load_text_to_context(text_context, text, 128);
 
     while(1) {
         while(SDL_PollEvent(&event) != 0) {
             if(event.type == SDL_QUIT) {
-                free_render_context(text_context);
+                free_text_render_context(text_context);
+                free_star_render_context(bg_context);
+
                 destroy_window(window, window_context);
 
                 return 0;
@@ -85,6 +89,7 @@ int main(int argc, char** argv) {
 
         glClear(GL_COLOR_BUFFER_BIT);
 
+        render_star_background(bg_context, (int)SDL_GetTicks());
         render_text_from_context(text_context);
 
         SDL_GL_SwapWindow(window);

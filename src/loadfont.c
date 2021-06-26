@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 
 #include "loadfont.h"
+#include "compile_shader_from_path.h"
 
 typedef struct text_vertex {
     float px;
@@ -67,7 +68,7 @@ void render_text_from_context(TextRenderContext* context) {
     glDrawElements(GL_TRIANGLES, context->text_length*6, GL_UNSIGNED_INT, (void*)0);
 }
 
-void free_render_context(TextRenderContext* context) {
+void free_text_render_context(TextRenderContext* context) {
     glDeleteProgram(context->shader_program);
     glDeleteTextures(1, &context->texture);
 
@@ -107,7 +108,7 @@ int load_font_shader_program(GLuint* program) {
     if(!ok) {
         glGetProgramInfoLog(*program, GL_INFO_LOG_LENGTH, NULL, shader_error);
     	glDeleteProgram(*program);
-        printf("Error Linking Shader Program:\n%s\n", shader_error);
+        printf("Error Linking Text Shader Program:\n%s\n", shader_error);
         return -1;
     }
 
@@ -167,7 +168,7 @@ void load_vertices(TextRenderContext* context, int text_height) {
     } else {
         glGenVertexArrays(1, &context->vao);
         glBindVertexArray(context->vao);
-        
+
         glGenBuffers(1, &context->vbo);
         glBindBuffer(GL_ARRAY_BUFFER, context->vbo);
 
@@ -240,49 +241,4 @@ void load_vertices(TextRenderContext* context, int text_height) {
     }
 
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, e_buffer_size, context->data.element_indices, GL_DYNAMIC_DRAW);
-}
-
-GLuint compile_shader_from_path(const char* path, GLuint shader_type) {
-    int ok;
-    int file_length;
-    char shader_error[GL_INFO_LOG_LENGTH];
-
-    // Load Shader Source
-    FILE* shader_handle = fopen(path, "r");
-    if(shader_handle == NULL) {
-        printf("Failed to open %s\n", path);
-        return -1;
-    }
-
-    fseek(shader_handle, 0, SEEK_END);
-    file_length = ftell(shader_handle);
-    rewind(shader_handle);
-    char* shader_source = malloc(file_length + 1);
-    if(shader_source == NULL) {
-        fclose(shader_handle);
-        printf("Failed to allocate space for contents of %s\n", path);
-        return -1;
-    }
-
-    fread(shader_source, file_length + 1, 1, shader_handle);
-    shader_source[file_length] = '\0';
-    fclose(shader_handle);
-    
-    // Compile Shader
-    GLuint shader = glCreateShader(shader_type);
-
-    const char* shader_source_const = (const char*)shader_source;
-    glShaderSource(shader, 1, &shader_source_const, NULL);
-    glCompileShader(shader);
-    free(shader_source);
-
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
-    if(!ok) {
-        glGetShaderInfoLog(shader, GL_INFO_LOG_LENGTH, NULL, shader_error);
-        glDeleteShader(shader);
-        printf("Error Compiling Shader at %s:\n%s\n", path, shader_error);
-        return -1;
-    }
-
-    return shader;
 }
