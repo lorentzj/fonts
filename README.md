@@ -1,6 +1,6 @@
 # ✷✧✦ StellQ ✦✧✷
 
-A collection of bitmap ASCII fonts (1 so far) and a very simple font previewer.
+A collection of bitmap ASCII fonts (2 so far) and a very simple font previewer.
 
 The previewer uses `OpenGL 3.3`, `GLEW`, `SDL2`, and `SDL_Image`. The Makefile is tested on Ubuntu 20.04.
 
@@ -14,6 +14,6 @@ For some integer N, each font file should be a (128N)x(2N) pixel PNG. Each chara
 
 `make`
 
-`bin/stellq fonts/1.png "The quick brown fox jumps over the lazy dog."`
+`bin/stellq fonts/2.png "The quick brown fox jumps over the lazy dog."`
 
-![Screenshot](screenshots/1.gif)
+![Screenshot](screenshots/2.gif)
