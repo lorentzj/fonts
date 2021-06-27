@@ -17,8 +17,8 @@ void main() {
     f_color = g_color[0];
     f_shimmer_offset = g_shimmer_offset[0];
 
-    float inner_star_size = 0.004f * g_size[0];
-    float outer_star_size = 0.016f * g_size[0];
+    float inner_star_size = g_size[0];
+    float outer_star_size = 4 * g_size[0];
 
     const float TWO_PI = 6.28318;
     int n_points = 4;

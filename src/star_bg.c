@@ -42,11 +42,11 @@ StarRenderContext* load_star_render_context(int n_stars) {
 
         context->stars[i].r = random_between_0_and_1();
         context->stars[i].g = random_between_0_and_1();
-        context->stars[i].b = random_between_0_and_1();
+        context->stars[i].b = random_between_0_and_1() + 0.5;
 
         context->stars[i].shimmer_offset = random_between_0_and_1() * 3.14159 * 2;
         context->stars[i].theta = random_between_0_and_1() * 3.14159 * 2;
-        context->stars[i].size = random_between_0_and_1();
+        context->stars[i].size = random_between_0_and_1() * 0.002 + 0.001;
     }
 
     if(load_star_shader_program(&context->shader_program, context) == -1) return NULL;
