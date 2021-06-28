@@ -36,6 +36,8 @@ void load_vertices(TextRenderContext* context, int text_height);
 TextRenderContext* load_text_render_context(char* font_path) {
     TextRenderContext* context = malloc(sizeof(TextRenderContext));
 
+    if(context == NULL) return NULL;
+    
     if(load_font_shader_program(&context->shader_program) == -1) return NULL;
     if(load_font_texture(font_path, &context->texture) == -1) return NULL;
 
@@ -50,7 +52,7 @@ void load_text_to_context(TextRenderContext* context, char* text, int text_heigh
 
     context->text = text;
     context->text_length = strlen(text);
-    load_vertices(context, text_height);
+
     context->text_loaded = (context->data.element_indices != NULL) && (context->data.vertices != NULL);
 }
 

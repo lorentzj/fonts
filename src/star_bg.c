@@ -33,8 +33,15 @@ StarRenderContext* load_star_render_context(int n_stars) {
     srand(0);
     StarRenderContext* context = malloc(sizeof(StarRenderContext));
 
+    if(context == NULL) return NULL;
+
     context->n_stars = n_stars;
     context->stars = malloc(sizeof(StarData) * n_stars);
+
+    if(context->stars == NULL) {
+        printf("Failed to allocate memory for star vertex data.\n");
+        return NULL;
+    }
 
     for(int i = 0; i < n_stars; ++i) {
         context->stars[i].px = random_between_0_and_1() * 2.0 - 1.0;
