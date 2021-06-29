@@ -6,8 +6,7 @@ CCLIBS = -lGL -lGLEW -lSDL2 -lSDL2_image
 .PHONY: all, clean
 
 all:
-	@mkdir -p bin
-	@$(CC) $(CCFLAGS) $(CCINCLUDE) src/*.c $(CCLIBS) -o bin/stellq
+	@$(CC) $(CCFLAGS) $(CCINCLUDE) src/*.c $(CCLIBS) -o viewfont 
 
 clean:
-	@rm -rf bin
+	@rm viewfont 

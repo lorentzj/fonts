@@ -1,4 +1,4 @@
-# ✷✧✦ StellQ ✦✧✷
+# Fonts
 
 A collection of bitmap ASCII fonts (2 so far) and a very simple font previewer.
 
@@ -8,12 +8,12 @@ For some integer N, each font file should be a (128N)x(2N) pixel PNG. Each chara
 
 ## Install:
 
-`git clone https://github.com/lorentzj/stellq`
+`git clone https://github.com/lorentzj/fonts`
 
-`cd stellq`
+`cd fonts`
 
 `make`
 
-`bin/stellq fonts/2.png "The quick brown fox jumps over the lazy dog."`
+`./viewfont fonts/2.png "The quick brown fox jumps over the lazy dog."`
 
-![Screenshot](screenshots/2.gif)
+![Screenshot](screenshots/2.png)

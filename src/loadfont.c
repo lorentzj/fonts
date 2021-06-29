@@ -52,6 +52,8 @@ void load_text_to_context(TextRenderContext* context, char* text, int text_heigh
 
     context->text = text;
     context->text_length = strlen(text);
+    
+    load_vertices(context, text_height);
 
     context->text_loaded = (context->data.element_indices != NULL) && (context->data.vertices != NULL);
 }
@@ -223,7 +225,7 @@ void load_vertices(TextRenderContext* context, int text_height) {
         context->data.vertices[i*4 + 3].ty = 0;
     }
 
-    glBufferData(GL_ARRAY_BUFFER, v_buffer_size, context->data.vertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, v_buffer_size, context->data.vertices, GL_STATIC_DRAW);
 
     for(int i = 0; i < context->text_length; ++i) {
         /**
@@ -242,5 +244,5 @@ void load_vertices(TextRenderContext* context, int text_height) {
         context->data.element_indices[i*6 + 5] = i*4 + 3;
     }
 
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, e_buffer_size, context->data.element_indices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, e_buffer_size, context->data.element_indices, GL_STATIC_DRAW);
 }

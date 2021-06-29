@@ -4,10 +4,9 @@
 #include <SDL2/SDL.h>
 
 #include "loadfont.h"
-#include "star_bg.h"
 
-#define STELLQ_WINDOW_WIDTH 1500
-#define STELLQ_WINDOW_HEIGHT 1000
+#define WINDOW_WIDTH 1500
+#define WINDOW_HEIGHT 1000
 
 void GLAPIENTRY gl_message_callback(GLenum source,
                                     GLenum type,
@@ -28,7 +27,7 @@ int init_window(SDL_Window** window, SDL_GLContext* context) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,         SDL_GL_CONTEXT_DEBUG_FLAG);
 
-    *window  = SDL_CreateWindow("StellQ", 0, 0, STELLQ_WINDOW_WIDTH, STELLQ_WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
+    *window  = SDL_CreateWindow("StellQ", 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
     *context = SDL_GL_CreateContext(*window);
 
     if(glewInit() != 0) {
@@ -39,7 +38,7 @@ int init_window(SDL_Window** window, SDL_GLContext* context) {
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(gl_message_callback, 0);
 
-    glViewport(0, 0, STELLQ_WINDOW_WIDTH, STELLQ_WINDOW_HEIGHT);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -69,9 +68,8 @@ int main(int argc, char** argv) {
     if(init_window(&window, &window_context) == -1) return -1;
 
     TextRenderContext* text_context = load_text_render_context(font_path);
-    StarRenderContext* bg_context = load_star_render_context(50000);
 
-    if(text_context == NULL || bg_context == NULL) return -1;
+    if(text_context == NULL) return -1;
 
     load_text_to_context(text_context, text, 128);
 
@@ -79,17 +77,13 @@ int main(int argc, char** argv) {
         while(SDL_PollEvent(&event) != 0) {
             if(event.type == SDL_QUIT) {
                 free_text_render_context(text_context);
-                free_star_render_context(bg_context);
-
                 destroy_window(window, window_context);
-
                 return 0;
             }
         }
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        render_star_background(bg_context, (int)SDL_GetTicks());
         render_text_from_context(text_context);
 
         SDL_GL_SwapWindow(window);
