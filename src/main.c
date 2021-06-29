@@ -6,7 +6,7 @@
 #include "loadfont.h"
 
 #define WINDOW_WIDTH 1500
-#define WINDOW_HEIGHT 1000
+#define WINDOW_HEIGHT 500
 
 void GLAPIENTRY gl_message_callback(GLenum source,
                                     GLenum type,
