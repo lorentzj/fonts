@@ -27,7 +27,7 @@ int init_window(SDL_Window** window, SDL_GLContext* context) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,         SDL_GL_CONTEXT_DEBUG_FLAG);
 
-    *window  = SDL_CreateWindow("StellQ", 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
+    *window  = SDL_CreateWindow("Preview Font", 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
     *context = SDL_GL_CreateContext(*window);
 
     if(glewInit() != 0) {
